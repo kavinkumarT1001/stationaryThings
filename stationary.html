@@ -247,7 +247,7 @@
             const amount = row.querySelectorAll("input")[1].value.trim();
 
             if (select || quantity || amount) {
-                text += `${select}\t${quantity}\t${amount}\n`;
+                text += `${select}-${quantity}-${amount}\n`;
             }
         });
 
