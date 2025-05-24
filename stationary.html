@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kitchen Items Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            padding: 4px 12px;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body class="p-3">
+
+<div class="container">
+    <h4 class="mb-3">🧾 Kitchen Item Entry</h4>
+
+    <div id="list-container" class="gy-3"></div>
+
+    <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-outline-primary" onclick="addRow()">➕ Add Item</button>
+        <button class="btn btn-success" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    </div>
+
+    <div class="mt-4">
+        <label for="copiedData" class="form-label">📄 Copied Items:</label>
+        <textarea id="copiedData" class="form-control" rows="6" readonly></textarea>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    const itemsList = [
+  // Grains
+  "அரிசி : Rice",
+  "புழுங்கல் அரிசி : Boiled Rice",
+  "பச்சரிசி : Raw Rice",
+  "பசுமை அரிசி : Green Rice",
+  "கோதுமை : Wheat",
+  "சோளம் : Maize / Corn",
+  "அரிசி மாவு : Rice Flour",
+  "கோதுமை மாவு : Wheat Flour",
+  "மைதா : Refined Flour (Maida)",
+  "ரவை : Semolina (Rava)",
+  "சோள மாவு : Corn Flour",
+
+  // Pulses & Millets
+  "துவரம் பருப்பு : Toor Dal",
+  "உளுந்து பருப்பு : Urad Dal",
+  "பாசி பருப்பு : Moong Dal",
+  "கடலை பருப்பு : Channa Dal",
+  "மசூர் பருப்பு : Masoor Dal",
+  "வேர்க்கடலை : Groundnut",
+  "பச்சை பயிறு : Green Gram",
+  "சாமை : Little Millet",
+  "வரகு : Kodo Millet",
+  "தினை : Foxtail Millet",
+  "குதிரைவாலி : Barnyard Millet",
+  "ராகி : Finger Millet",
+  "அரக்கே : Horse Gram",
+
+  // Spices
+  "மஞ்சள் தூள் : Turmeric Powder",
+  "மிளகாய் தூள் : Red Chili Powder",
+  "தனியா தூள் : Coriander Powder",
+  "சாம்பார் தூள் : Sambar Powder",
+  "ரசம் தூள் : Rasam Powder",
+  "கரம் மசாலா : Garam Masala",
+  "கஸூரி மேத்தி : Kasuri Methi",
+  "மிளகு : Pepper",
+  "சீரகம் : Cumin",
+  "கடுகு : Mustard Seeds",
+  "வெந்தயம் : Fenugreek",
+  "பெருங்காயம் : Asafoetida (Hing)",
+  "ஏலக்காய் : Cardamom",
+  "இலவங்கம் : Clove",
+  "இலவங்கப்பட்டை : Cinnamon",
+  "அனிசுப் பூ : Star Anise",
+  "ஜாதிக்காய் : Nutmeg",
+  "ஓமம் : Ajwain (Carom Seeds)",
+  "சோம்பு : Fennel",
+
+  // Oils & Fats
+  "நல்லெண்ணெய் : Sesame Oil",
+  "நாட்டு எண்ணெய் : Groundnut Oil",
+  "தேங்காய் எண்ணெய் : Coconut Oil",
+  "சூரியகாந்த எண்ணெய் : Sunflower Oil",
+  "நெய் : Ghee",
+  "வெண்ணெய் : Butter",
+  "மார்ஜரின் : Margarine",
+  "ஆலிவ் எண்ணெய் : Olive Oil",
+
+  // Vegetables
+  "வெங்காயம் : Onion",
+  "தக்காளி : Tomato",
+  "உருளைக்கிழங்கு : Potato",
+  "பூண்டு : Garlic",
+  "இஞ்சி : Ginger",
+  "தேங்காய் : Coconut",
+  "பச்சை மிளகாய் : Green Chili",
+  "மிளகாய் : Red Chili",
+  "முருங்கைக்காய் : Drumstick",
+  "கத்தரிக்காய் : Brinjal",
+  "சுரைக்காய் : Bottle Gourd",
+  "பீர்க்கங்காய் : Ridge Gourd",
+  "புடலங்காய் : Snake Gourd",
+  "பூசணிக்காய் : Pumpkin",
+  "வெண்டைக்காய் : Ladies Finger",
+  "காரட் : Carrot",
+  "பீன்ஸ் : Beans",
+  "முட்டைகோஸ் : Cabbage",
+  "பூகோஸ் : Cauliflower",
+  "சோழை : Chow Chow",
+  "வாழைக்காய் : Raw Banana",
+  "பத்தரவை : Ash Gourd",
+  "சீமைக்கத்தரி : Ivy Gourd",
+
+  // Leafy Greens & Herbs
+  "அமராந்து கீரை : Amaranth Leaves",
+  "அகத்தி கீரை : Agathi Keerai",
+  "முருங்கை கீரை : Drumstick Leaves",
+  "முளைக்கீரை : Fenugreek Leaves",
+  "பசலைக்கீரை : Spinach",
+  "கொத்தமல்லி : Coriander Leaves",
+  "புதினா : Mint Leaves",
+  "கறிவேப்பிலை : Curry Leaves",
+
+  // Dairy
+  "பால் : Milk",
+  "தயிர் : Curd",
+  "வெண்ணெய் : Butter",
+  "நெய் : Ghee",
+  "பனீர் : Paneer",
+  "சீஸ் : Cheese",
+  "மோர் : Buttermilk",
+
+  // Eggs & Meat
+  "முட்டை : Egg",
+  "கோழி முட்டை : Chicken Egg",
+  "வாத்து முட்டை : Duck Egg",
+  "காடை முட்டை : Quail Egg",
+  "கோழி இறைச்சி : Chicken Meat",
+  "மட்டன் : Mutton",
+  "மீன் : Fish",
+  "இறால் : Prawns",
+  "நண்டு : Crab",
+  "வாத்து இறைச்சி : Duck Meat",
+
+  // Flours & Mixes
+  "தோசை மாவு : Dosa Batter",
+  "இடியாப்பம் மாவு : Idiyappam Flour",
+  "அடையை மாவு : Adai Batter",
+  "இட்லி மாவு : Idli Batter",
+  "மிளகாய் மாவு : Chili Paste",
+  "மஞ்சள் பேஸ்ட் : Turmeric Paste",
+
+  // Condiments
+  "உப்பு : Salt",
+  "சர்க்கரை : Sugar",
+  "பனங்கற்கண்டு : Palm Sugar",
+  "வெல்லம் : Jaggery",
+  "வினிகர் : Vinegar",
+  "சாஸ் : Sauce",
+  "பிக்கிள் : Pickle",
+  "புளி பேஸ்ட் : Tamarind Paste",
+  "இஞ்சி பூண்டு விழுது : Ginger Garlic Paste",
+  "பாக்கெட்டை சுடுகோல் : Papad",
+  "வடாம் : Fryums",
+
+  // Beverages
+  "தேயிலை தூள் : Tea Powder",
+  "காபி தூள் : Coffee Powder",
+  "மிலோ : Milo",
+  "போர்லிக்ஸ் : Horlicks",
+  "பாஸ்டு பவுடர் : Boost Powder",
+  "பால் பவுடர் : Milk Powder",
+
+  // Miscellaneous
+  "களிம்பு : Lye Water",
+  "அடுப்புச்சாமான் : Stove Utensils",
+  "மண்ணேறு : Earthen Pot",
+  "கட்டிய உப்பு : Rock Salt",
+  "கம்பு, சோளம் மாவு : Millet Flour",
+  "சமையல் மெழுகுவர்த்தி : Cooking Wax",
+  "கடாயி : Frying Pan",
+  "தவா : Tawa",
+  "அழுக்கு துணி : Cleaning Cloth"
+];
+
+    let counter = 1;
+
+    function addRow() {
+        const container = document.getElementById('list-container');
+        const row = document.createElement('div');
+        row.className = 'row g-2 mb-3';
+
+        const selectId = `itemSelect${counter}`;
+
+        row.innerHTML = `
+            <div class="col-12">
+                <select class="form-select item-dropdown" id="${selectId}">
+                    <option value="" disabled selected>Select item...</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <input type="text" class="form-control" placeholder="Quantity (e.g., 2 Kg)">
+            </div>
+            <div class="col-6">
+                <input type="text" class="form-control" placeholder="Amount (e.g., 120)">
+            </div>
+        `;
+
+        container.appendChild(row);
+
+        const select = document.getElementById(selectId);
+        itemsList.forEach(item => {
+            const option = document.createElement("option");
+            option.text = item;
+            option.value = item;
+            select.add(option);
+        });
+
+        $(`#${selectId}`).select2({
+            placeholder: "Select item...",
+            allowClear: true,
+            dropdownAutoWidth: true
+        });
+
+        counter++;
+    }
+
+    function copyToClipboard() {
+        const rows = document.querySelectorAll('#list-container .row');
+        let text = "";
+
+        rows.forEach(row => {
+            const select = $(row).find("select").val() || "";
+            const quantity = row.querySelectorAll("input")[0].value.trim();
+            const amount = row.querySelectorAll("input")[1].value.trim();
+
+            if (select || quantity || amount) {
+                text += `${select}\t${quantity}\t${amount}\n`;
+            }
+        });
+
+        document.getElementById("copiedData").value = text.trim();
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert("✅ Copied to clipboard!");
+        });
+    }
+
+    // Add the first row on page load
+    window.onload = addRow;
+</script>
+
+</body>
+</html>
